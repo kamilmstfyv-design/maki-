@@ -3,19 +3,26 @@ import { HeroCarousel } from "@/components/hero-carousel";
 import { Header } from "@/components/header";
 import { MenuCategoryTabs } from "@/components/menu-category-tabs";
 import { MenuGrid } from "@/components/menu-grid";
-import { client } from "@/sanity/lib/client";
+import { getSanityClient } from "@/sanity/lib/client";
 import {
   categoriesQuery,
   heroSlidesQuery,
   productsQuery,
 } from "@/sanity/queries/menu";
 
+// Revalidate periodically so Sanity updates show up without redeploy
+export const revalidate = 30;
+
 export default async function Home() {
-  const [categories, products, heroSlides] = await Promise.all([
-    client.fetch(categoriesQuery),
-    client.fetch(productsQuery),
-    client.fetch(heroSlidesQuery),
-  ]);
+  const client = getSanityClient();
+
+  const [categories, products, heroSlides] = client
+    ? await Promise.all([
+        client.fetch(categoriesQuery),
+        client.fetch(productsQuery),
+        client.fetch(heroSlidesQuery),
+      ])
+    : [[], [], []];
 
   return (
     <div className="min-h-screen flex flex-col">

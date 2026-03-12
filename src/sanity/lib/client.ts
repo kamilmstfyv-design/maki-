@@ -2,9 +2,13 @@ import { createClient } from 'next-sanity'
 
 import { apiVersion, dataset, projectId } from '../env'
 
-export const client = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: true, // Set to false if statically generating pages, using ISR or tag-based revalidation
-})
+export function getSanityClient() {
+  if (!projectId || !dataset) return null
+  return createClient({
+    projectId,
+    dataset,
+    apiVersion,
+    // Disable CDN so newly published content appears immediately
+    useCdn: false,
+  })
+}

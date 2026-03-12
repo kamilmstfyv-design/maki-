@@ -1,20 +1,20 @@
 export const apiVersion =
   process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2026-03-05'
 
-export const dataset = assertValue(
-  process.env.NEXT_PUBLIC_SANITY_DATASET,
-  'Missing environment variable: NEXT_PUBLIC_SANITY_DATASET'
-)
+// Deployment-safe: these may be undefined during build if env vars aren't set yet.
+export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
+export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
 
-export const projectId = assertValue(
-  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  'Missing environment variable: NEXT_PUBLIC_SANITY_PROJECT_ID'
-)
+export function hasSanityEnv() {
+  return Boolean(projectId && dataset)
+}
 
-function assertValue<T>(v: T | undefined, errorMessage: string): T {
-  if (v === undefined) {
-    throw new Error(errorMessage)
+export function requireSanityEnv() {
+  if (!projectId) {
+    throw new Error('Missing environment variable: NEXT_PUBLIC_SANITY_PROJECT_ID')
   }
-
-  return v
+  if (!dataset) {
+    throw new Error('Missing environment variable: NEXT_PUBLIC_SANITY_DATASET')
+  }
+  return { projectId, dataset, apiVersion }
 }
